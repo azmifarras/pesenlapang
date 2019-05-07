@@ -44,10 +44,10 @@ function onChange(pagination, filters, sorter) {
     }
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     let dataTemp = [];
     //setelah di render baru jalanin setelah yang ada di component didmount
-    firebase.firestore().collection('transaksi').get().then(async data => {
+    await firebase.firestore().collection('transaksi').get().then(async data => {
       data.forEach(async item => {
         //buat ngebuka satu2 ketika pakai array 
         console.log('=======', item.id);
@@ -68,9 +68,8 @@ function onChange(pagination, filters, sorter) {
           Harga: item.data().harga
         });
       });
-      console.log(dataTemp);
-      await this.setState({ dataSource: dataTemp });
-    })
+    });
+    setTimeout(() => this.setState({ dataSource: dataTemp }), 2000) ;
   }
 
   render() {

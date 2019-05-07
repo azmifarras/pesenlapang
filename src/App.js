@@ -23,6 +23,7 @@ class App extends Component {
   }
 
   componentWillMount(){
+    //ketika mau render dia ngejalanin ini dlu 
     firebase.initializeApp(config);
   }
   
