@@ -4,7 +4,10 @@ import firebase from 'firebase';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
 import _ from 'lodash';
+
 import ImageUpload from '../Component/ImageUpload';
+import MainHeader from '../Component/Header';
+import Sider from '../Component/SiderDaftarLapang';
 
 const { Header, Content, Footer } = Layout;
 
@@ -183,49 +186,59 @@ const CollectionCreateForm = Form.create({name: 'form_in_modal'}) (
     render() {
       console.log(this.state.itemUpdate)
       return(
-        <div>
-        <List
-          itemLayout="vertical"
-          size="large"
-          pagination={{
-            onChange: (page) => {
-              console.log(page);
-            },
-            pageSize: 3,
-          }}
-          dataSource={this.state.dataSource}
-          renderItem={item => (
-            <List.Item
-            
-              key={item.title}
-              extra={<img src={this.state.url || 'http://via.placeholder.com/350x150'} alt="Uploaded Image" height="150" width="350" marginRight= {100}/>}
-            >
-              <List.Item.Meta
-                title={<a href={item.href}>{item.nama}</a>}
-                description={item.jalan}
-              />
-              {item.kabupaten}
-              <br/>
-              <Button type="danger" onClick={() => this.handleDelete(item.id)}>Delete</Button>
-              <Button type="primary" onClick={() => this.ModalUpdate(item)}>Update</Button>
-              
-              <CollectionCreateForm
-                wrappedComponentRef={this.saveFormRefUpdate}
-                visibleUpdate={this.state.visibleUpdate}
-                onCancel={this.handleCancel}
-                item={this.state.itemUpdate}
-                onUpdate={this.handleUpdate}
-              />
-            </List.Item>
-          )}
-        />
-            <Link to ="/buatlapang">
-              <Button type="primary" onClick={this.showModal}>Tambah Lapang</Button>
-            </Link>  
-       </div>
+        <Layout >
+          <MainHeader selected="3" />
+          <Layout.Content style={{ padding: '0 100px', marginTop: 100 }}>
+            <Layout style={{ padding: '24px 0', background: '#fff' }}>
+              <Sider selected="1" />
+              <Layout.Content style={{ padding: '0 24px', minHeight: 280 }}>
+                <h1 >Futsal</h1>
+                <List
+                  itemLayout="vertical"
+                  size="large"
+                  pagination={{
+                    onChange: (page) => {
+                      console.log(page);
+                    },
+                    pageSize: 3,
+                  }}
+                  dataSource={this.state.dataSource}
+                  renderItem={item => (
+                    <List.Item
+                    
+                      key={item.title}
+                      extra={<img src={this.state.url || 'http://via.placeholder.com/350x150'} alt="Uploaded Image" height="150" width="350" marginRight= {100}/>}
+                    >
+                      <List.Item.Meta
+                        title={<a href={item.href}>{item.nama}</a>}
+                        description={item.jalan}
+                      />
+                      {item.kabupaten}
+                      <br/>
+                      <Button type="danger" onClick={() => this.handleDelete(item.id)}>Delete</Button> <Button type="primary" onClick={() => this.ModalUpdate(item)}>Update</Button>
+                      
+                      <CollectionCreateForm
+                        wrappedComponentRef={this.saveFormRefUpdate}
+                        visibleUpdate={this.state.visibleUpdate}
+                        onCancel={this.handleCancel}
+                        item={this.state.itemUpdate}
+                        onUpdate={this.handleUpdate}
+                      />
+                    </List.Item>
+                  )}
+                />
+                <Link to ="/buatlapang">
+                  <Button type="primary" onClick={this.showModal}>Tambah Lapang</Button>
+                </Link>  
+              </Layout.Content>
+            </Layout>
+          </Layout.Content>
+          <Layout.Footer style={{ textAlign: 'center' }}>
+            Ant Design ©2018 Created by Ant UED
+          </Layout.Footer>
+        </Layout>
     )
   }
-  
 }
 
-  export default DaftarLapangFutsal;
+export default DaftarLapangFutsal;

@@ -3,6 +3,8 @@ import { Layout, Menu, Breadcrumb, Dropdown, Icon, Table} from 'antd';
 import firebase from 'firebase';
 import moment from 'moment';
 
+import MainHeader from '../Component/Header';
+
 const { Header, Content, Footer } = Layout;
 const columns = [{
     title: 'Nama Lapang',
@@ -76,18 +78,8 @@ function onChange(pagination, filters, sorter) {
     console.log('ini state', this.state.dataSource);
     return(
     <Layout>
-      <Header style={{ position: 'fixed', zIndex: 1, width: '100%' }}>
-        <div className="logo" />
-        <Menu
-          theme="dark"
-          mode="horizontal"
-          defaultSelectedKeys={['2']}
-          style={{ lineHeight: '64px' }}
-        >
-          <Menu.Item key="2">Transaksi</Menu.Item>                      
-        </Menu>
-      </Header>
-      <Content style={{ padding: '0 50px', marginTop: 64 }}>
+      <MainHeader selected="2" />
+      <Content style={{ padding: '0 50px', marginTop: 100 }}>
         <Table columns={columns} dataSource={this.state.dataSource} onChange={onChange} />
       </Content>
       <Footer style={{ textAlign: 'center' }}>

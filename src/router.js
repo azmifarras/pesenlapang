@@ -10,6 +10,8 @@ import BuatLapang from './screen/BuatLapang';
 import DaftarLapangBadminton from './screen/DaftarLapangBadminton';
 import LapangSewa from './screen/LapangSewa';
 import TambahLapangSewa from './screen/TambahLapangSewa';
+import DaftarLapang from './screen/DaftarLapang';
+
 class Routing extends Component {
 	render(){
 		const { user } = this.props;
@@ -18,7 +20,8 @@ class Routing extends Component {
 				<div>
 					<Route exact path="/login" render={(props) => user && user.dataStore.role == 3 ? <Redirect to='/' /> : <Login {...props} />}/>
 					<Route exact path="/" render={(props) => <Home {...props}/>} />
-					<Route exact path="/transaksi" render={(props) => <Transaksi {...props}/>} /> 
+					<Route exact path="/transaksi" render={(props) => <Transaksi {...props}/>} />
+					<Route exact path="/daftarlapang" render={(props) => <DaftarLapang {...props}/>} />
 					<Route exact path="/daftarlapang/badminton" render={(props) => <DaftarLapangBadminton {...props}/>} />
 					<Route exact path="/daftarlapang/futsal" render={(props) => <DaftarLapangFutsal {...props}/>} />
 					<Route exact path="/buatlapang" render={(props) => <BuatLapang {...props}/>}/>

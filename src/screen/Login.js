@@ -12,7 +12,6 @@ class NormalLoginForm extends React.Component {
       email: '',
       password: '',
   }
-  
 
   login = () => {
     const { putUser } = this.props;

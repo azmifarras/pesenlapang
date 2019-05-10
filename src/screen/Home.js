@@ -6,6 +6,8 @@ import DaftarLapangFutsal from './DaftarLapangFutsal';
 import UpdateLapang from './BuatLapang';
 import firebase from 'firebase';
 import ImageUpload from '../Component/ImageUpload';
+
+import MainHeader from '../Component/Header';
 const { Header, Content, Footer } = Layout;
 
  class Home extends Component {
@@ -33,37 +35,13 @@ const { Header, Content, Footer } = Layout;
   render() {
     return(
     <Layout>
-      <Header style={{ position: 'fixed', zIndex: 1, width: '100%' }}>
-        <div className="logo" />
-        <Menu
-          theme="dark"
-          mode="horizontal"
-          defaultSelectedKeys={['2']}
-          style={{ lineHeight: '64px' }}
-        >
-          <Menu.Item key="1" trigger={['click']} >Home</Menu.Item>
-          <Menu.Item key="2"><Link to="/transaksi">Transaksi</Link></Menu.Item>
-          <Dropdown overlay={(
-            <Menu>
-            <List >
-              <Menu.Item key="0">
-                <a href="/daftarlapang/futsal">Futsal</a>
-              </Menu.Item>
-              <Menu.Item key="0">
-                <a href="/daftarlapang/badminton">Badminton</a>
-              </Menu.Item>
-            </List>  
-          </Menu>
-          )} trigger={['click']}>
-            <a  href="">
-             Daftar Lapang <Icon type="down" />
-            </a>
-          </Dropdown>
-        </Menu>
-      </Header>
-      <Content style={{ padding: '0 100px', marginTop: 64 }}>
+      <MainHeader selected="1" />
+      <Content style={{ padding: '0 100px', marginTop: 100 }}>
         <ImageUpload/>
       </Content>
+      <Footer style={{ textAlign: 'center' }}>
+        Ant Design ©2018 Created by Ant UED
+      </Footer>
     </Layout>
     )
   }
