@@ -19,15 +19,14 @@ class Routing extends Component {
 			<Router>
 				<div>
 					<Route exact path="/login" render={(props) => user && user.dataStore.role == 3 ? <Redirect to='/' /> : <Login {...props} />}/>
-					<Route exact path="/" render={(props) => <Home {...props}/>} />
-					<Route exact path="/transaksi" render={(props) => <Transaksi {...props}/>} />
-					<Route exact path="/daftarlapang" render={(props) => <DaftarLapang {...props}/>} />
-					<Route exact path="/daftarlapang/badminton" render={(props) => <DaftarLapangBadminton {...props}/>} />
-					<Route exact path="/daftarlapang/futsal" render={(props) => <DaftarLapangFutsal {...props}/>} />
-					<Route exact path="/buatlapang" render={(props) => <BuatLapang {...props}/>}/>
-					<Route exact path="/lapangsewa" render={(props) => <LapangSewa {...props}/>}/>
-					<Route exact path="/tambahlapangsewa" render={(props) => <TambahLapangSewa {...props}/>}/>
-					
+					<Route exact path="/" render={(props) => user && user.dataStore.role == 3 ? <Home {...props}/> : <Redirect to='/login' />} />
+					<Route exact path="/transaksi" render={(props) => user && user.dataStore.role == 3 ? <Transaksi {...props}/> : <Redirect to='/login' />} />
+					<Route exact path="/daftarlapang" render={(props) => user && user.dataStore.role == 3 ? <DaftarLapang {...props}/> : <Redirect to='/login' />} />
+					<Route exact path="/daftarlapang/badminton" render={(props) => user && user.dataStore.role == 3 ? <DaftarLapangBadminton {...props}/> : <Redirect to='/login' />} />
+					<Route exact path="/daftarlapang/futsal" render={(props) => user && user.dataStore.role == 3 ? <DaftarLapangFutsal {...props}/> : <Redirect to='/login' />} />
+					<Route exact path="/buatlapang" render={(props) => user && user.dataStore.role == 3 ? <BuatLapang {...props}/> : <Redirect to='/login' />}/>
+					<Route exact path="/lapangsewa" render={(props) => user && user.dataStore.role == 3 ? <LapangSewa {...props}/> : <Redirect to='/login' />}/>
+					<Route exact path="/tambahlapangsewa" render={(props) => user && user.dataStore.role == 3 ? <TambahLapangSewa {...props}/> : <Redirect to='/login' />}/>
 				</div>
 			</Router>
 		)

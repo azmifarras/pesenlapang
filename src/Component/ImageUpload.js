@@ -19,7 +19,7 @@ class ImageUpload extends Component {
     }
     handleUpload = () =>{
         const {image} = this.state;
-        const uploadTask = firebase.storage().ref('images/${image.name}').put(image);
+        const uploadTask = firebase.storage().ref(`images/${image.name}`).put(image);
         uploadTask.on('state_changed',
         (snapshot) => {
 
@@ -45,10 +45,10 @@ class ImageUpload extends Component {
         };
         return (
             <div style={style}>
-            <input type="file" onChange={this.handleChange}/>
-            <button onClick={this.handleUpload}>Upload</button>
-            <br/>
-            <img src={this.state.url || 'http://via.placeholder.com/350x150'} alt="Uploaded Image" height="150" width="350" /> 
+                <input type="file" onChange={this.handleChange}/>
+                <button onClick={this.handleUpload}>Upload</button>
+                <br/>
+                <img src={this.state.url || 'http://via.placeholder.com/350x150'} alt="Uploaded Image" height="150" width="350" /> 
             </div>
         )
     }

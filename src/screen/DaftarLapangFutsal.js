@@ -171,6 +171,7 @@ const CollectionCreateForm = Form.create({name: 'form_in_modal'}) (
             avatar: 'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png',
             jalan: item.data().jalan,
             kabupaten: item.data().kabupaten,
+            imageURL: item.data().imageURL,
             id: item.id
           }); 
         });
@@ -207,7 +208,7 @@ const CollectionCreateForm = Form.create({name: 'form_in_modal'}) (
                     <List.Item
                     
                       key={item.title}
-                      extra={<img src={this.state.url || 'http://via.placeholder.com/350x150'} alt="Uploaded Image" height="150" width="350" marginRight= {100}/>}
+                      extra={<img src={item.imageURL} alt="Uploaded Image" height="150" width="350" marginRight= {100}/>}
                     >
                       <List.Item.Meta
                         title={<a href={item.href}>{item.nama}</a>}

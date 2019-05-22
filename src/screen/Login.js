@@ -4,7 +4,6 @@ import {
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import firebase from 'firebase';
-import Home from './Home';
 import {LOGIN_SUCCESS} from '../../src/store/action';
  
 class NormalLoginForm extends React.Component {

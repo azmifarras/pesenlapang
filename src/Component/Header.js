@@ -1,6 +1,8 @@
 import React from 'react';
 import { Layout, Menu } from 'antd';
 import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { LOGOUT_SUCCESS } from '../../src/store/action';
 
 class MainHeader extends React.Component {
   render() {
@@ -17,10 +19,21 @@ class MainHeader extends React.Component {
           <Menu.Item key="1" ><Link to="/" >Home</Link></Menu.Item>
           <Menu.Item key="2"><Link to="/transaksi" >Transaksi</Link></Menu.Item>
           <Menu.Item key="3"><Link to="/daftarlapang" >Daftar Lapang</Link></Menu.Item>
+          <Menu.Item key="4" onClick={() => this.props.logoutUser()} >Log Out</Menu.Item>
         </Menu>
       </Layout.Header>
     );
   }
 }
 
-export default MainHeader;
+const mapStateToProps = (state) => ({
+
+});
+
+const mapDispatchToProps = dispatch => ({
+  logoutUser: () => dispatch({
+    type: LOGOUT_SUCCESS
+  })
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(MainHeader);
