@@ -25,7 +25,7 @@ class Routing extends Component {
 					<Route exact path="/daftarlapang/badminton" render={(props) => user && user.dataStore.role == 3 ? <DaftarLapangBadminton {...props}/> : <Redirect to='/login' />} />
 					<Route exact path="/daftarlapang/futsal" render={(props) => user && user.dataStore.role == 3 ? <DaftarLapangFutsal {...props}/> : <Redirect to='/login' />} />
 					<Route exact path="/buatlapang" render={(props) => user && user.dataStore.role == 3 ? <BuatLapang {...props}/> : <Redirect to='/login' />}/>
-					<Route exact path="/lapangsewa" render={(props) => user && user.dataStore.role == 3 ? <LapangSewa {...props}/> : <Redirect to='/login' />}/>
+					<Route exact path="/daftarlapang/:kategori/:lapangId" render={(props) => user && user.dataStore.role == 3 ? <LapangSewa {...props}/> : <Redirect to='/login' />}/>
 					<Route exact path="/tambahlapangsewa" render={(props) => user && user.dataStore.role == 3 ? <TambahLapangSewa {...props}/> : <Redirect to='/login' />}/>
 				</div>
 			</Router>

@@ -167,7 +167,8 @@ const CollectionCreateForm = Form.create({name: 'form_in_modal'}) (
             avatar: 'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png',
             jalan: item.data().jalan,
             kabupaten: item.data().kabupaten,
-            id: item.id
+            id: item.id,
+            imageURL: item.data().imageURL
           });
         });
       });
@@ -201,7 +202,7 @@ const CollectionCreateForm = Form.create({name: 'form_in_modal'}) (
                     <List.Item
                     
                       key={item.title}
-                      extra={<img width={272} marginRight= {100} alt="logo" src="https://i1.wp.com/www.knginfo.com/wp-content/uploads/2017/10/lapang-futsal.jpg?fit=620%2C350&ssl=1" />}
+                      extra={<img width={272} alt={item.avatar} src={item.imageURL} height="150" width="350" marginRight= {100} />}
                     >
                       <List.Item.Meta
                         title={<a href={item.href}>{item.nama}</a>}

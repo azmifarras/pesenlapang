@@ -1,9 +1,12 @@
 import React, { Component } from 'react';
-import { Layout, Menu, Avatar, Breadcrumb, Dropdown, Icon, Table, List, Button,Form, Input, Modal } from 'antd';
+import { Layout, PageHeader, Avatar, Breadcrumb, Dropdown, Icon, Table, List, Button,Form, Input, Modal } from 'antd';
 import firebase from 'firebase';
 import moment from 'moment';
 import { BrowserRouter as Router, Link , Redirect } from 'react-router-dom';
 import _ from 'lodash';
+import qs from 'querystring';
+
+import MainHeader from '../Component/Header';
 
 const { Header, Content, Footer } = Layout;
 
@@ -21,7 +24,8 @@ const CollectionCreateForm = Form.create({name: 'form_in_modal'}) (
       this.state = {
         nama: "",
         deskripsi: "",
-        harga: ""
+        harga: "",
+        routes: []
       }
     }
     render() {
@@ -199,48 +203,53 @@ const CollectionCreateForm = Form.create({name: 'form_in_modal'}) (
     }
     
     render() {
-      console.log(this.state.itemUpdate)
+      console.log(qs.parse("?filter=top&origin=im".substring(1)));
       return(
-        <div>
-        <List
-          itemLayout="vertical"
-          size="large"
-          pagination={{
-            onChange: (page) => {
-              console.log(page);
-            },
-            pageSize: 3,
-          }}
-          dataSource={this.state.dataSource}
-          renderItem={item => (
-            <List.Item
-            
-              key={item.title}
-              extra={<img width={272} marginRight= {100} alt="logo" src="http://www.staradmiral.com/wp-content/uploads/2017/01/Empat-Macam-Lapangan-Futsal.jpg" />}
-            >
-              <List.Item.Meta
-                title={<a href={item.href}>{item.deskripsi}</a>}
-                description={item.harga}
-              />
-              {item.nama}
-              <br/>
-              <Button type="danger" onClick={() => this.handleDelete(item.id)}>Delete</Button>
-              <Button type="primary" onClick={() => this.ModalUpdate(item)}>Update</Button>
-              
-              <CollectionCreateForm
-                wrappedComponentRef={this.saveFormRefUpdate}
-                visibleUpdate={this.state.visibleUpdate}
-                onCancel={this.handleCancel}
-                item={item}
-                onUpdate={this.handleUpdate}
-              />
-            </List.Item>
-          )}
-        />
+        <Layout >
+          <MainHeader selected="3" />
+          <Layout.Content style={{ padding: '0 100px', marginTop: 100 }} >
+            <List
+              itemLayout="vertical"
+              size="large"
+              pagination={{
+                onChange: (page) => {
+                  console.log(page);
+                },
+                pageSize: 3,
+              }}
+              dataSource={this.state.dataSource}
+              renderItem={item => (
+                <List.Item
+                
+                  key={item.title}
+                  extra={<img width={272} marginRight= {100} alt="logo" src="http://www.staradmiral.com/wp-content/uploads/2017/01/Empat-Macam-Lapangan-Futsal.jpg" />}
+                >
+                  <List.Item.Meta
+                    title={<a href={item.href}>{item.deskripsi}</a>}
+                    description={item.harga}
+                  />
+                  {item.nama}
+                  <br/>
+                  <Button type="danger" onClick={() => this.handleDelete(item.id)}>Delete</Button> <Button type="primary" onClick={() => this.ModalUpdate(item)}>Update</Button>
+                  
+                  <CollectionCreateForm
+                    wrappedComponentRef={this.saveFormRefUpdate}
+                    visibleUpdate={this.state.visibleUpdate}
+                    onCancel={this.handleCancel}
+                    item={item}
+                    onUpdate={this.handleUpdate}
+                  />
+                </List.Item>
+              )}
+            />
             <Link to ="/tambahlapangsewa">
               <Button type="primary" onClick={this.showModal}>Tambah Lapang</Button>
-            </Link>  
-       </div>
+            </Link> 
+          </Layout.Content>
+          <Layout.Footer style={{ textAlign: 'center' }}>
+            Ant Design ©2018 Created by Ant UED
+          </Layout.Footer>
+        </Layout> 
     )
   }
   
