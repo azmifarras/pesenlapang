@@ -166,9 +166,11 @@ render(){
               </Upload>
             </FormItem>
             <Form.Item wrapperCol={{ span: 12, offset: 5 }}>
-                <Button type="primary" htmlType="submit">
-                    Submit
-                </Button>
+              <Button onClick={() => this.props.history.goBack()} type="danger" htmlType="submit">
+                Back
+              </Button> <Button type="primary" htmlType="submit">
+                Submit
+              </Button>
             </Form.Item>
           </Form>
         </div>
@@ -182,4 +184,4 @@ render(){
 }
 
 const WrappedApp = Form.create({ name: 'coordinated' })(BuatLapang);
-export default WrappedApp ;
+export default WrappedApp;

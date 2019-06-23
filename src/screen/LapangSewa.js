@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Layout, PageHeader, Avatar, Breadcrumb, Dropdown, Icon, Table, List, Button,Form, Input, Modal } from 'antd';
+import { Layout, message, Upload, Breadcrumb, Dropdown, Icon, Table, List, Button,Form, Input, Modal } from 'antd';
 import firebase from 'firebase';
 import moment from 'moment';
 import { BrowserRouter as Router, Link , Redirect } from 'react-router-dom';
@@ -17,6 +17,34 @@ const IconText = ({ type, text }) => (
   </span>
 );
 
+function getBase64(img, callback) {
+  const reader = new FileReader();
+  reader.addEventListener('load', () => callback(reader.result));
+  reader.readAsDataURL(img);
+}
+
+function beforeUpload(file) {
+  const isJPG = file.type === 'image/jpeg';
+  if(!isJPG) {
+    message.error('You can only upload JPG file!');
+  }
+  const isLt2M = file.size / 1024 / 1024 < 2;
+  if (!isLt2M) {
+    message.error('Image must smaller than 2MB!');
+  }
+  return isJPG && isLt2M;
+}
+
+function create_UUID(){
+  var dt = new Date().getTime();
+  var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      var r = (dt + Math.random()*16)%16 | 0;
+      dt = Math.floor(dt/16);
+      return (c=='x' ? r :(r&0x3|0x8)).toString(16);
+  });
+  return uuid;
+}
+
 const CollectionCreateForm = Form.create({name: 'form_in_modal'}) (
   class extends React.Component {
     constructor(props) {
@@ -25,78 +53,119 @@ const CollectionCreateForm = Form.create({name: 'form_in_modal'}) (
         nama: "",
         deskripsi: "",
         harga: "",
-        routes: []
+        routes: [],
+        imageUrl: this.props.item.imageUrl,
+        fullPath: ''
       }
     }
+
+    handleChangeUpload = info => {
+      if(info.file.status === 'uploading') {
+        this.setState({ loading: true });
+        return;
+      }
+      if (info.file.status === 'done') {
+        // Get this url from response in real world.
+        getBase64(info.file.originFileObj, imageUrl =>
+          this.setState({
+            imageUrl,
+            loading: false,
+          }),
+        );
+      }
+    }
+
+    componentDidUpdate(prevProps) {
+      if(!_.isEqual(this.props, prevProps)) {
+        this.setState({ imageUrl: this.props.item.imageUrl })
+      }
+    }
+  
+    customUpload = async ({ onError, onSuccess, file }) => {
+      const storage = firebase.storage()
+      const metadata = {
+        contentType: 'image/jpeg'
+      }
+      const storageRef = await storage.ref()
+      const imageName = create_UUID() //a unique name for the image
+      const imgFile = storageRef.child(`LapangSewa/${imageName}.png`)
+      try {
+        const image = await imgFile.put(file, metadata);
+        this.setState({ fullPath: image.metadata.fullPath });
+        onSuccess(null, image)
+      }
+      catch(e) {
+        onError(e);
+      }
+    }
+
     render() {
       const {
         visible, onCancel, onCreate, form, visibleUpdate, item, onUpdate
       } = this.props;
       console.log(this.props);
       const { getFieldDecorator } = form;
-      if(visible) {
-        return(
-          <Modal
-            visible={visible}
-            title="Form daftar Lapang"
-            okText="Create"
-            onCancel={onCancel}
-            onOk={onCreate}
-          >
-            <Form layout="vertical">
-              <Form.Item label="Deskripsi">
-                {getFieldDecorator('deskripsi', {
-                  rules: [{ required: true, message: 'data wajib di isi ' }],
-                })(
-                  <Input />
-                )}
-              </Form.Item>
-              <Form.Item label="Harga">
-                {getFieldDecorator('harga')(<Input type="textarea" />)}
-              </Form.Item>
-              <Form.Item label="Nama ">
-                {getFieldDecorator('nama')(<Input type="textarea" />)}
-              </Form.Item> 
-            </Form>
-          </Modal>
-        )
-      }
-      else {
-        return(
-          <Modal
-            visible={visibleUpdate}
-            title="Form daftar Lapang"
-            okText="Update"
-            onCancel={onCancel}
-            onOk={onUpdate}
-          >
-            <Form layout="vertical">
-              <Form.Item label="Deskripsi">
-                {getFieldDecorator('deskripsi', {
-                  rules: [{ required: true, message: 'data wajib di isi ' }],
-                  initialValue: item && item.deskripsi
-                })(
-                  <Input />
-                )}
-              </Form.Item>
-              <Form.Item label="Harga">
-                {getFieldDecorator('harga', {
-                  initialValue: item && item.harga
-                })(<Input type="textarea" />)}
-              </Form.Item>
-              <Form.Item label="Nama">
-                {getFieldDecorator('nama', {
-                  initialValue: item && item.nama
-                })(<Input type="textarea" />)}
-              </Form.Item> 
-            </Form>
-          </Modal>
-        )
-      }
+      const uploadButton = (
+        <div>
+          <Icon type="plus" />
+          <div className="ant-upload-text">Upload</div>
+        </div>
+      );
+      return(
+        <Modal
+          visible={visibleUpdate}
+          title="Form daftar Lapang"
+          okText="Update"
+          onCancel={onCancel}
+          onOk={onUpdate}
+        >
+          <Form layout="vertical">
+            <Form.Item label="Nama">
+              {getFieldDecorator('nama', {
+                initialValue: item && item.nama
+              })(<Input type="textarea" />)}
+            </Form.Item>
+            <Form.Item label="Deskripsi">
+              {getFieldDecorator('deskripsi', {
+                rules: [{ required: true, message: 'data wajib di isi ' }],
+                initialValue: item && item.deskripsi
+              })(
+                <Input.TextArea rows={4} />
+              )}
+            </Form.Item>
+            <Form.Item label="Harga">
+              {getFieldDecorator('harga', {
+                initialValue: item && item.harga
+              })(<Input type="textarea" />)}
+            </Form.Item>
+            <Form.Item label="Gambar">
+              {getFieldDecorator('gambar', {
+                initialValue: item && item.harga
+              })(
+                <Upload
+                  name="Avatar"
+                  listType="picture-card"
+                  className="avatar-uploader"
+                  showUploadList={false}
+                  beforeUpload={beforeUpload}
+                  onChange={this.handleChangeUpload}
+                  customRequest={this.customUpload}
+                >
+                  {this.state.imageUrl ? <img style={{ height: 250, width: 250 }} src={this.state.imageUrl} alt="avatar" /> : uploadButton}
+                </Upload>
+              )}
+            </Form.Item>
+            <Form.Item style={{ display: 'none' }} label="ImageUrl">
+              {getFieldDecorator('imageUrl', {
+                initialValue: this.state.imageUrl
+              })(<Input type="textarea" />)}
+            </Form.Item>
+          </Form>
+        </Modal>
+      )
     }
   }
 );
-
 
   //nama: `IFI Futsal`,
   //jalan : 'Jln Sayang Jatinangor',
@@ -107,7 +176,8 @@ const CollectionCreateForm = Form.create({name: 'form_in_modal'}) (
       super(props);
       this.state = {
         dataSource: [],
-        itemUpdate: {}
+        itemUpdate: {},
+        dataLapang: {}
       }
       this.ModalUpdate = this.ModalUpdate.bind(this);
     }
@@ -116,33 +186,13 @@ const CollectionCreateForm = Form.create({name: 'form_in_modal'}) (
       visible: false,
       visibleUpdate: false,
     };
-    showModal = () =>{
-      this.setState({visible: true, visibleUpdate: false});
-    }
+    
     ModalUpdate(item) {
       this.setState({visibleUpdate: true, visible: false, itemUpdate: item});
     }
+
     handleCancel = () => {
       this.setState({ visible: false, visibleUpdate: false });
-    }
-  
-    handleCreate = () => {
-      const form = this.formRef.props.form;
-      form.validateFields((err, values) => {
-        if (err) {
-          return;
-        }  
-        console.log('Received values of form: ', values);
-        firebase.firestore().collection('lapang sewa').add({
-          deskripsi: values.deskripsi,
-          harga: values.harga,
-          nama: values.nama,
-        }).then(data => {
-          console.log(data);
-        })
-        form.resetFields();
-        this.setState({ visible: false, visibleUpdate: false });
-      });
     }
 
     handleUpdate = (item) => {
@@ -152,7 +202,11 @@ const CollectionCreateForm = Form.create({name: 'form_in_modal'}) (
           return;
         }  
         console.log('Received values of form: ', values);
-        firebase.firestore().collection('lapang sewa').doc(item.id).update({
+        firebase.firestore().collection('lapang sewa').doc(this.state.itemUpdate.id).update({
+          deskripsi: values.deskripsi,
+          harga: values.harga,
+          imageUrl: values.imageUrl,
+          nama: values.nama
         }).then(function(){
           console.log("success");
         }).catch(function(error){
@@ -171,30 +225,31 @@ const CollectionCreateForm = Form.create({name: 'form_in_modal'}) (
       })
     }
 
-    saveFormRef = (formRef) => {
-      this.formRef = formRef;
-    }
-
     saveFormRefUpdate = (formRef) => {
       this.formRef = formRef;
     }
     
     async componentDidMount(){
       let dataLapangSewa = [];
-      await firebase.firestore().collection('lapang sewa').get().then (data => {
+      let dataLapang = {}
+      await firebase.firestore().collection('lapang sewa').where('lapangId', "==", firebase.firestore().collection('lapang').doc(this.props.match.params.lapangId)).get().then (data => {
         data.forEach(item => {
           console.log(item.data());
           dataLapangSewa.push({
-            href: '/lapangsewa',
             deskripsi: item.data().deskripsi,
-            avatar: 'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png',
             harga: item.data().harga,
             nama: item.data().nama,
+            imageUrl: item.data().imageUrl,
             id: item.id
           });
         });
       });
       this.setState({ dataSource: dataLapangSewa });
+
+      await firebase.firestore().collection('lapang').doc(this.props.match.params.lapangId).get().then(doc => {
+        dataLapang = doc.data();
+      });
+      this.setState({ dataLapang: dataLapang })
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -204,10 +259,21 @@ const CollectionCreateForm = Form.create({name: 'form_in_modal'}) (
     
     render() {
       console.log(qs.parse("?filter=top&origin=im".substring(1)));
+      console.log(this.props.location.pathname);
+      console.log()
       return(
         <Layout >
           <MainHeader selected="3" />
           <Layout.Content style={{ padding: '0 100px', marginTop: 100 }} >
+            <Breadcrumb >
+              <Breadcrumb.Item >
+              <Link to={`/daftarlapang/${this.props.match.params.kategori}`} ><Icon type="arrow-left" /> {this.props.match.params.kategori == "futsal" ? "Futsal" : "Badminton"}</Link>
+              </Breadcrumb.Item>
+              <Breadcrumb.Item >
+                {this.state.dataLapang.nama}
+              </Breadcrumb.Item>
+            </Breadcrumb>
+            <h1>Lapang Sewa</h1>
             <List
               itemLayout="vertical"
               size="large"
@@ -222,13 +288,13 @@ const CollectionCreateForm = Form.create({name: 'form_in_modal'}) (
                 <List.Item
                 
                   key={item.title}
-                  extra={<img width={272} marginRight= {100} alt="logo" src="http://www.staradmiral.com/wp-content/uploads/2017/01/Empat-Macam-Lapangan-Futsal.jpg" />}
+                  extra={<img width={272} marginRight= {100} alt="logo" src={item.imageUrl} />}
                 >
                   <List.Item.Meta
-                    title={<a href={item.href}>{item.deskripsi}</a>}
+                    title={<a href={item.href}>{item.nama}</a>}
                     description={item.harga}
                   />
-                  {item.nama}
+                  {item.deskripsi}
                   <br/>
                   <Button type="danger" onClick={() => this.handleDelete(item.id)}>Delete</Button> <Button type="primary" onClick={() => this.ModalUpdate(item)}>Update</Button>
                   
@@ -236,14 +302,14 @@ const CollectionCreateForm = Form.create({name: 'form_in_modal'}) (
                     wrappedComponentRef={this.saveFormRefUpdate}
                     visibleUpdate={this.state.visibleUpdate}
                     onCancel={this.handleCancel}
-                    item={item}
+                    item={this.state.itemUpdate}
                     onUpdate={this.handleUpdate}
                   />
                 </List.Item>
               )}
             />
-            <Link to ="/tambahlapangsewa">
-              <Button type="primary" onClick={this.showModal}>Tambah Lapang</Button>
+            <Link to ={`${this.props.location.pathname}/tambahlapangsewa`}>
+              <Button type="primary" >Tambah Lapang Sewa</Button>
             </Link> 
           </Layout.Content>
           <Layout.Footer style={{ textAlign: 'center' }}>
@@ -252,7 +318,6 @@ const CollectionCreateForm = Form.create({name: 'form_in_modal'}) (
         </Layout> 
     )
   }
-  
 }
 
-  export default LapangSewa;
+export default LapangSewa;

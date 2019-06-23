@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import { Layout, Menu, Avatar, Breadcrumb, Dropdown, Icon, Table, List, Button,Form, Input, Modal } from 'antd';
+import { Layout, Upload, message, Breadcrumb, Dropdown, Icon, Table, List, Button,Form, Input, Modal } from 'antd';
 import firebase from 'firebase';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
 import _ from 'lodash';
 
+import ImageUpload from '../Component/ImageUpload';
 import MainHeader from '../Component/Header';
 import Sider from '../Component/SiderDaftarLapang';
 
@@ -17,6 +18,34 @@ const IconText = ({ type, text }) => (
   </span>
 );
 
+function getBase64(img, callback) {
+  const reader = new FileReader();
+  reader.addEventListener('load', () => callback(reader.result));
+  reader.readAsDataURL(img);
+}
+
+function beforeUpload(file) {
+  const isJPG = file.type === 'image/jpeg';
+  if(!isJPG) {
+    message.error('You can only upload JPG file!');
+  }
+  const isLt2M = file.size / 1024 / 1024 < 2;
+  if (!isLt2M) {
+    message.error('Image must smaller than 2MB!');
+  }
+  return isJPG && isLt2M;
+}
+
+function create_UUID(){
+  var dt = new Date().getTime();
+  var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      var r = (dt + Math.random()*16)%16 | 0;
+      dt = Math.floor(dt/16);
+      return (c=='x' ? r :(r&0x3|0x8)).toString(16);
+  });
+  return uuid;
+}
+
 const CollectionCreateForm = Form.create({name: 'form_in_modal'}) (
   class extends React.Component {
     constructor(props) {
@@ -24,7 +53,50 @@ const CollectionCreateForm = Form.create({name: 'form_in_modal'}) (
       this.state = {
         nama: "",
         jalan: "",
-        kabupaten: ""
+        kabupaten: "",
+        loading: false,
+        imageUrl: this.props.item.imageURL,
+        fullPath: ''
+      }
+    }
+
+    handleChangeUpload = info => {
+      if(info.file.status === 'uploading') {
+        this.setState({ loading: true });
+        return;
+      }
+      if (info.file.status === 'done') {
+        // Get this url from response in real world.
+        getBase64(info.file.originFileObj, imageUrl =>
+          this.setState({
+            imageUrl,
+            loading: false,
+          }),
+        );
+      }
+    }
+  
+    customUpload = async ({ onError, onSuccess, file }) => {
+      const storage = firebase.storage()
+      const metadata = {
+        contentType: 'image/jpeg'
+      }
+      const storageRef = await storage.ref()
+      const imageName = create_UUID() //a unique name for the image
+      const imgFile = storageRef.child(`Lapang/${imageName}.png`)
+      try {
+        const image = await imgFile.put(file, metadata);
+        this.setState({ fullPath: image.metadata.fullPath });
+        onSuccess(null, image)
+      }
+      catch(e) {
+        onError(e);
+      }
+    }
+
+    componentDidUpdate(prevProps) {
+      if(!_.isEqual(this.props, prevProps)) {
+        this.setState({ imageUrl: this.props.item.imageURL })
       }
     }
 
@@ -32,8 +104,14 @@ const CollectionCreateForm = Form.create({name: 'form_in_modal'}) (
       const {
         visible, onCancel, onCreate, form, visibleUpdate, item, onUpdate
       } = this.props;
-      console.log(this.props);
+      console.log(item);
       const { getFieldDecorator } = form;
+      const uploadButton = (
+        <div>
+          <Icon type={this.state.loading ? 'loading' : 'plus'} />
+          <div className="ant-upload-text">Upload</div>
+        </div>
+      );
       return(
         <Modal
           visible={visibleUpdate}
@@ -61,13 +139,30 @@ const CollectionCreateForm = Form.create({name: 'form_in_modal'}) (
                 initialValue: item && item.kabupaten
               })(<Input type="textarea" />)}
             </Form.Item> 
+            <Form.Item>
+            {getFieldDecorator('imageURL', {
+                initialValue: this.state.imageUrl
+              })(
+                <Input style={{ display: "none" }} />
+              )}
+              <Upload
+                name="Avatar"
+                listType="picture-card"
+                className="avatar-uploader"
+                showUploadList={false}
+                beforeUpload={beforeUpload}
+                onChange={this.handleChangeUpload}
+                customRequest={this.customUpload}
+              >
+                {this.state.imageUrl ? <img style={{ height: 250, width: 250 }} src={this.state.imageUrl} alt="avatar" /> : uploadButton}
+              </Upload>
+            </Form.Item>
           </Form>
         </Modal>
       )
     }
   }
 );
-
 
   //nama: `IFI Futsal`,
   //jalan : 'Jln Sayang Jatinangor',
@@ -129,7 +224,8 @@ const CollectionCreateForm = Form.create({name: 'form_in_modal'}) (
         firebase.firestore().collection('lapang').doc(itemUpdate.id).update({
           jalan: values.jalan,
           kabupaten: values.kabupaten,
-          nama: values.nama
+          nama: values.nama,
+          imageURL: values.imageURL
         }).then(function(){
           console.log("success");
         }).catch(function(error){
@@ -162,22 +258,24 @@ const CollectionCreateForm = Form.create({name: 'form_in_modal'}) (
         data.forEach(item => {
           console.log(item.data());
           dataLapang.push({
-            href: '/lapangsewa',
+            href: `/daftarlapang/badminton/${item.id}`,
             nama: item.data().nama,
             avatar: 'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png',
             jalan: item.data().jalan,
             kabupaten: item.data().kabupaten,
-            id: item.id,
-            imageURL: item.data().imageURL
-          });
+            imageURL: item.data().imageURL,
+            id: item.id
+          }); 
         });
       });
       this.setState({ dataSource: dataLapang });
     }
+
     componentDidUpdate(prevProps, prevState) {
       if(!_.isEqual(prevState, this.state)) {
       }
     }
+    
     render() {
       console.log(this.state.itemUpdate)
       return(
@@ -202,7 +300,7 @@ const CollectionCreateForm = Form.create({name: 'form_in_modal'}) (
                     <List.Item
                     
                       key={item.title}
-                      extra={<img width={272} alt={item.avatar} src={item.imageURL} height="150" width="350" marginRight= {100} />}
+                      extra={<img src={item.imageURL} alt={item.avatar} height="150" width="350" marginRight= {100}/>}
                     >
                       <List.Item.Meta
                         title={<a href={item.href}>{item.nama}</a>}
@@ -224,7 +322,7 @@ const CollectionCreateForm = Form.create({name: 'form_in_modal'}) (
                 />
                 <Link to ="/buatlapang">
                   <Button type="primary" onClick={this.showModal}>Tambah Lapang</Button>
-                </Link>
+                </Link>  
               </Layout.Content>
             </Layout>
           </Layout.Content>
@@ -234,7 +332,6 @@ const CollectionCreateForm = Form.create({name: 'form_in_modal'}) (
         </Layout>
     )
   }
-  
 }
 
-  export default DaftarLapangBadminton;
+export default DaftarLapangBadminton;

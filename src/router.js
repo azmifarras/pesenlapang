@@ -5,12 +5,15 @@ import Login from './screen/Login';
 import Transaksi from './screen/Transaksi';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router';
+
 import DaftarLapangFutsal from './screen/DaftarLapangFutsal';
 import BuatLapang from './screen/BuatLapang';
 import DaftarLapangBadminton from './screen/DaftarLapangBadminton';
 import LapangSewa from './screen/LapangSewa';
 import TambahLapangSewa from './screen/TambahLapangSewa';
 import DaftarLapang from './screen/DaftarLapang';
+import DaftarPemilik from './screen/DaftarPemilikLapang';
+import TambahPemilik from './screen/TambahPemilikLapang';
 
 class Routing extends Component {
 	render(){
@@ -26,7 +29,9 @@ class Routing extends Component {
 					<Route exact path="/daftarlapang/futsal" render={(props) => user && user.dataStore.role == 3 ? <DaftarLapangFutsal {...props}/> : <Redirect to='/login' />} />
 					<Route exact path="/buatlapang" render={(props) => user && user.dataStore.role == 3 ? <BuatLapang {...props}/> : <Redirect to='/login' />}/>
 					<Route exact path="/daftarlapang/:kategori/:lapangId" render={(props) => user && user.dataStore.role == 3 ? <LapangSewa {...props}/> : <Redirect to='/login' />}/>
-					<Route exact path="/tambahlapangsewa" render={(props) => user && user.dataStore.role == 3 ? <TambahLapangSewa {...props}/> : <Redirect to='/login' />}/>
+					<Route exact path="/daftarlapang/:kategori/:lapangId/tambahlapangsewa" render={(props) => user && user.dataStore.role == 3 ? <TambahLapangSewa {...props}/> : <Redirect to='/login' />}/>
+					<Route exact path="/daftarpemilik" render={(props) => user && user.dataStore.role == 3 ? <DaftarPemilik {...props}/> : <Redirect to='/login' />} />
+					<Route exact path="/tambahpemilik" render={(props) => user && user.dataStore.role == 3 ? <TambahPemilik {...props}/> : <Redirect to='/login' />} />
 				</div>
 			</Router>
 		)
