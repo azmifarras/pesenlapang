@@ -77,8 +77,10 @@ class TambahPemilik extends React.Component {
             email: values.email,
             role: 2,
             noTelp: values.phone,
-            avatar: this.state.imageUrl,
+            avatar: imagePath,
             lapangId: firebase.firestore().collection('lapang').doc(values.lapang)
+          }).then(() => {
+            this.props.history.push('/daftarpemilik');
           });
         });
       }
@@ -137,8 +139,6 @@ class TambahPemilik extends React.Component {
   };
 
   render() {
-    console.log(this.state.listLapang, 'listlapang');
-    console.log(this.state.imageUrl);
     const { getFieldDecorator } = this.props.form;
     const formItemLayout = {
       labelCol: {

@@ -157,7 +157,7 @@ const CollectionCreateForm = Form.create({name: 'form_in_modal'}) (
             </Form.Item>
             <Form.Item style={{ display: 'none' }} label="ImageUrl">
               {getFieldDecorator('imageUrl', {
-                initialValue: this.state.imageUrl
+                initialValue: this.state.fullPath
               })(<Input type="textarea" />)}
             </Form.Item>
           </Form>
@@ -197,7 +197,8 @@ const CollectionCreateForm = Form.create({name: 'form_in_modal'}) (
 
     handleUpdate = (item) => {
       const form = this.formRef.props.form;
-      form.validateFields((err, values) => {
+      form.validateFields(async (err, values) => {
+        const imagePath = await firebase.storage().ref().child(values.imageUrl).getDownloadURL();
         if (err) {
           return;
         }  
@@ -205,7 +206,7 @@ const CollectionCreateForm = Form.create({name: 'form_in_modal'}) (
         firebase.firestore().collection('lapang sewa').doc(this.state.itemUpdate.id).update({
           deskripsi: values.deskripsi,
           harga: values.harga,
-          imageUrl: values.imageUrl,
+          imageUrl: imagePath,
           nama: values.nama
         }).then(function(){
           console.log("success");
