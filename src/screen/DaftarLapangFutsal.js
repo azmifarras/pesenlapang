@@ -104,7 +104,6 @@ const CollectionCreateForm = Form.create({name: 'form_in_modal'}) (
       const {
         visible, onCancel, onCreate, form, visibleUpdate, item, onUpdate
       } = this.props;
-      console.log(item);
       const { getFieldDecorator } = form;
       const uploadButton = (
         <div>
@@ -141,7 +140,7 @@ const CollectionCreateForm = Form.create({name: 'form_in_modal'}) (
             </Form.Item> 
             <Form.Item>
             {getFieldDecorator('imageURL', {
-                initialValue: this.state.fullPath
+                initialValue: this.state.fullPath ? this.state.fullPath : this.state.imageUrl
               })(
                 <Input style={{ display: "none" }} />
               )}
@@ -214,13 +213,22 @@ const CollectionCreateForm = Form.create({name: 'form_in_modal'}) (
     handleUpdate = () => {
       const form = this.formRef.props.form;
       const { itemUpdate } = this.state;
+      let imagePath = '';
       form.validateFields(async (err, values) => {
         if (err) {
           console.log(err)
           return;
         }  
         console.log('Received values of form: ', values);
-        const imagePath = await firebase.storage().ref().child(values.imageUrl).getDownloadURL();
+        const regex = RegExp('^(http|https)://');
+
+        imagePath = values.imageURL;
+
+        if(!regex.test(values.imageURL)) {
+          console.log('masuk sini')
+          imagePath = await firebase.storage().ref().child(values.imageURL).getDownloadURL();
+        }
+
         firebase.firestore().collection('lapang').doc(itemUpdate.id).update({
           jalan: values.jalan,
           kabupaten: values.kabupaten,

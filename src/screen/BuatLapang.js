@@ -8,7 +8,6 @@ import { Link } from 'react-router-dom';
 
 import ImageUpload from '../Component/ImageUpload';
 import MainHeader from '../Component/Header';
-import FormItem from 'antd/lib/form/FormItem';
 
 function getBase64(img, callback) {
   const reader = new FileReader();
@@ -152,7 +151,7 @@ render(){
               </Select>
             )}
             </Form.Item>
-            <FormItem>
+            <Form.Item label="Gambar">
               <Upload
                 name="Avatar"
                 listType="picture-card"
@@ -164,7 +163,7 @@ render(){
               >
                 {this.state.imageUrl ? <img style={{ height: 250, width: 250 }} src={this.state.imageUrl} alt="avatar" /> : uploadButton}
               </Upload>
-            </FormItem>
+            </Form.Item>
             <Form.Item wrapperCol={{ span: 12, offset: 5 }}>
               <Button onClick={() => this.props.history.goBack()} type="danger" htmlType="submit">
                 Back

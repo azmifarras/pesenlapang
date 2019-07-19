@@ -156,8 +156,8 @@ const CollectionCreateForm = Form.create({name: 'form_in_modal'}) (
               )}
             </Form.Item>
             <Form.Item style={{ display: 'none' }} label="ImageUrl">
-              {getFieldDecorator('imageUrl', {
-                initialValue: this.state.fullPath
+              {getFieldDecorator('imageURL', {
+                initialValue: this.state.fullPath ? this.state.fullPath : this.state.imageUrl
               })(<Input type="textarea" />)}
             </Form.Item>
           </Form>
@@ -197,12 +197,22 @@ const CollectionCreateForm = Form.create({name: 'form_in_modal'}) (
 
     handleUpdate = (item) => {
       const form = this.formRef.props.form;
+      let imagePath = '';
       form.validateFields(async (err, values) => {
-        const imagePath = await firebase.storage().ref().child(values.imageUrl).getDownloadURL();
         if (err) {
           return;
         }  
         console.log('Received values of form: ', values);
+
+        const regex = RegExp('^(http|https)://');
+
+        imagePath = values.imageURL;
+
+        if(!regex.test(values.imageURL)) {
+          console.log('masuk sini')
+          imagePath = await firebase.storage().ref().child(values.imageURL).getDownloadURL();
+        }
+
         firebase.firestore().collection('lapang sewa').doc(this.state.itemUpdate.id).update({
           deskripsi: values.deskripsi,
           harga: values.harga,
@@ -261,7 +271,6 @@ const CollectionCreateForm = Form.create({name: 'form_in_modal'}) (
     render() {
       console.log(qs.parse("?filter=top&origin=im".substring(1)));
       console.log(this.props.location.pathname);
-      console.log()
       return(
         <Layout >
           <MainHeader selected="3" />

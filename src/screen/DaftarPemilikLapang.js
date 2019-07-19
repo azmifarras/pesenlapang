@@ -89,7 +89,7 @@ const CreateFormModal = Form.create({ name: 'update' })(
     constructor(props) {
       super(props);
       this.state = {
-        imageUrl: '',
+        imageUrl: this.props.record.avatar,
         fullPath: '',
         loading: false
       }
@@ -145,12 +145,11 @@ const CreateFormModal = Form.create({ name: 'update' })(
         </div>
       );
 
-      console.log(record)
       return(
         <Modal
           visible={visible}
           title="Update Pemilik Lapang"
-          okText="Create"
+          okText="Update"
           onCancel={onCancel}
           onOk={onCreate}
         >
@@ -175,7 +174,7 @@ const CreateFormModal = Form.create({ name: 'update' })(
             </Form.Item>
             <Form.Item>
             {getFieldDecorator('imageURL', {
-                initialValue: this.state.fullPath
+                initialValue: this.state.fullPath ? this.state.fullPath : this.state.imageUrl
               })(
                 <Input style={{ display: "none" }} />
               )}
@@ -233,12 +232,24 @@ class DaftarPemilikLapang extends React.Component {
 
   handleCreate = () => {
     const { form } = this.formRef.props;
+
+    let imagePath = '';
+
     form.validateFields(async (err, values) => {
       if (err) {
         return;
       }
-      const imagePath = await firebase.storage().ref().child(values.imageUrl).getDownloadURL();
+
       console.log('Received values of form: ', values);
+
+      const regex = RegExp('^(http|https)://');
+
+      imagePath = values.imageURL;
+
+      if(!regex.test(values.imageURL)) {
+        console.log('masuk sini')
+        imagePath = await firebase.storage().ref().child(values.imageURL).getDownloadURL();
+      }
       
       firebase.firestore().collection('user').doc(this.state.recordUpdate.key).update({
         alamat: values.alamat,
@@ -278,9 +289,9 @@ class DaftarPemilikLapang extends React.Component {
           nama: item.data().nama,
           email: item.data().email,
           notelp: item.data().noTelp ? item.data().noTelp : null,
-          lapang: lapang.data().nama,
-          kategori: lapang.data().kategori,
-          lapangId: lapang.id,
+          lapang: lapang.data() ? lapang.data().nama : '',
+          kategori: lapang.data() ? lapang.data().kategori : '',
+          lapangId: lapang.data() ? lapang.id : '',
           alamat: item.data().alamat,
           onUpdate: (record) => this.onUpdate(record),
           onDelete: this.onDelete
