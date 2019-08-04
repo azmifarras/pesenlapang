@@ -38,11 +38,12 @@ function onChange(pagination, filters, sorter) {
   console.log('params', pagination, filters, sorter);
 }
 
- class Transaksi extends Component {
+class Transaksi extends Component {
   constructor(props){
     super(props);
     this.state = {
-      dataSource: []
+      dataSource: [],
+      loading: true
     }
   }
 
@@ -54,7 +55,7 @@ function onChange(pagination, filters, sorter) {
         //buat ngebuka satu2 ketika pakai array 
         console.log('=======', item.id);
         console.log(item.data());
-        let dataUser= await item.data().userID.get();
+        let dataUser= await item.data().user.get();
         //Let =Inisialisasi 
         console.log(dataUser.data());
         let dataSewa = await item.data().lapangSewa.get();
@@ -71,16 +72,16 @@ function onChange(pagination, filters, sorter) {
         });
       });
     });
-    setTimeout(() => this.setState({ dataSource: dataTemp }), 2000) ;
+    setTimeout(() => this.setState({ dataSource: dataTemp, loading: false }), 2000) ;
   }
 
   render() {
-    console.log('ini state', this.state.dataSource);
+    const { loading } = this.state
     return(
     <Layout>
       <MainHeader selected="2" />
       <Content style={{ padding: '0 50px', marginTop: 100 }}>
-        <Table columns={columns} dataSource={this.state.dataSource} onChange={onChange} />
+        <Table columns={columns} dataSource={this.state.dataSource} onChange={onChange} loading={loading} />
       </Content>
       <Footer style={{ textAlign: 'center' }}>
         Ant Design ©2018 Created by Ant UED

@@ -15,8 +15,9 @@ const { Header, Content, Footer } = Layout;
     super(props);
     this.state = {
       dataSource: [],
-   }
-}
+    }
+  }
+
   componentDidMount(){
     let dataKategori = [];
      firebase.firestore().collection('kategori').get().then (data => {
@@ -37,7 +38,7 @@ const { Header, Content, Footer } = Layout;
     <Layout>
       <MainHeader selected="1" />
       <Content style={{ padding: '0 100px', marginTop: 100 }}>
-        <ImageUpload/>
+        Home
       </Content>
       <Footer style={{ textAlign: 'center' }}>
         Ant Design ©2018 Created by Ant UED
